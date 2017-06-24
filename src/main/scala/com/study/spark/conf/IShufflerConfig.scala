@@ -41,6 +41,8 @@ case class IShufflerConfig(args: Array[String]) {
 
   lazy val documentContent = Try{args(7)}.toOption.getOrElse("hits.hits._source.abstract")
 
+  lazy val outputFile: String = Try{args(8)}.toOption.getOrElse("src/main/target/output")
+
   @transient lazy val log = org.apache.log4j.LogManager.getLogger("iShufflerLogger")
 
   @transient

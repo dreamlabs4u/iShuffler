@@ -45,16 +45,35 @@ trait Allocator extends HasConfig {
 
   /** Logs the final Insights */
   def logResults(topConceptTerms: Seq[Seq[Result]], topConceptDocs: Seq[Seq[Result]]) = {
-    for ((terms, docs) <- topConceptTerms.zip(topConceptDocs)) {
-      config.log.info(
-        s"""
-           |   Rank        : ${terms.headOption.cata(_.rank.toString, Constants.EMPTY_STR)}
-           |   Topic terms : ${terms.map(_.content).mkString(Constants.SEPERATOR_COMMA)}
-           |   Term Scores : ${terms.map(_.score).mkString(Constants.SEPERATOR_COMMA)}
-           |   Topic docs  : ${docs.map(_.content).mkString(Constants.SEPERATOR_COMMA)}
+    val result = for ((terms, docs) <- topConceptTerms.zip(topConceptDocs)) yield {
+      s"""
+         |   Rank        : ${terms.headOption.cata(_.rank.toString, Constants.EMPTY_STR)}
+         |   Topic terms : ${terms.map(_.content).mkString(Constants.SEPERATOR_COMMA)}
+         |   Term Scores : ${terms.map(_.score).mkString(Constants.SEPERATOR_COMMA)}
+         |   Topic docs  : ${docs.map(_.content).mkString(Constants.SEPERATOR_COMMA)}
+         |
         """.stripMargin
-      )
     }
+
+    config.log.info(result.mkString("\n"))
+
+    persist(result)
+  }
+
+  def persist(result: Seq[String]) = {
+    val hdfs = org.apache.hadoop.fs.FileSystem.get(config.sc.hadoopConfiguration)
+    hdfs.delete(new org.apache.hadoop.fs.Path(config.outputFile), true)
+
+    config.sc.parallelize(result).saveAsTextFile(config.outputFile)
+
+    config.log.info(
+      s"""
+        | ************** Completed writing the Insights *****************
+        |
+        | Location : ${config.outputFile}
+        |
+      """.stripMargin
+    )
   }
 
   /**
