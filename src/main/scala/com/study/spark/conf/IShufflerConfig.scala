@@ -29,6 +29,10 @@ case class IShufflerConfig(args: Array[String]) {
 
   lazy val k: Int = Try{args(3)}.toOption.getOrElse("100").toInt
 
+  lazy val noTopics = 5
+
+  lazy val numDocs = 5
+
   lazy val numTerms = Try{args(4)}.toOption.getOrElse("20000").toInt
 
   lazy val executerMemory = Try{args(5)}.toOption.getOrElse("2g")
@@ -36,6 +40,8 @@ case class IShufflerConfig(args: Array[String]) {
   lazy val documentTitle =  Try{args(6)}.toOption.getOrElse("hits.hits._source.programname")
 
   lazy val documentContent = Try{args(7)}.toOption.getOrElse("hits.hits._source.abstract")
+
+  @transient lazy val log = org.apache.log4j.LogManager.getLogger("iShufflerLogger")
 
   @transient
   lazy val conf = new SparkConf().setAppName("iShuffler").setMaster(master).set("spark.executor.memory", executerMemory)

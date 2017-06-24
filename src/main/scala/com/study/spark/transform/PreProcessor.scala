@@ -29,6 +29,12 @@ trait PreProcessor extends HasConfig {
   def readDocumentData: Dataset[(String, String)] = {
     import config.spark.implicits._
 
+    config.log.info(
+      s"""
+        |**********Loading the Source Data from : ${config.srcPath}
+      """.stripMargin
+    )
+
     config
       .spark
       .read
@@ -68,6 +74,9 @@ trait PreProcessor extends HasConfig {
     * @return NLPPipeline Object
     */
   def getNLPPipeline(): StanfordCoreNLP = {
+
+    config.log.info("**********Initiates the NLPPipeline**********")
+
     val props = new Properties()
     props.put(Constants.NLP_ATTRIBUTE_ANNOTATOR, Constants.NLP_ATTRIBUTE_ANNOTATOR_VALUES)
     new StanfordCoreNLP(props)

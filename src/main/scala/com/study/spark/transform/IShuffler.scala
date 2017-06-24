@@ -14,7 +14,13 @@ case class IShuffler(config: IShufflerConfig) extends HasConfig with PreProcesso
   def trigger = {
     val corpusInfo = doPreProcess()
 
-    println(corpusInfo)
+    config.log.info(
+      s"""
+        |**************** Completed Generating the Document Term Matrix ****************
+        |
+        | ${corpusInfo}
+        |
+      """.stripMargin  )
 
     allocate(corpusInfo)
   }

@@ -35,8 +35,8 @@ trait Allocator extends HasConfig {
     val mat = new RowMatrix(vecRdd)
     val svd = mat.computeSVD(config.k, computeU = true)
 
-    val topTopicTerms = topTermsInTopTopic(svd, 5, 5, corpusInfo.termIds)
-    val topTopicDocs = topDocsInTopTopic(svd, 5, 5, corpusInfo.docIds)
+    val topTopicTerms = topTermsInTopTopic(svd, config.noTopics, config.numDocs, corpusInfo.termIds)
+    val topTopicDocs = topDocsInTopTopic(svd, config.noTopics, config.numDocs, corpusInfo.docIds)
 
     logResults(topTopicTerms, topTopicDocs)
 
@@ -46,10 +46,11 @@ trait Allocator extends HasConfig {
   /** Logs the final Insights */
   def logResults(topConceptTerms: Seq[Seq[Result]], topConceptDocs: Seq[Seq[Result]]) = {
     for ((terms, docs) <- topConceptTerms.zip(topConceptDocs)) {
-      println(
+      config.log.info(
         s"""
            |   Rank        : ${terms.headOption.cata(_.rank.toString, Constants.EMPTY_STR)}
            |   Topic terms : ${terms.map(_.content).mkString(Constants.SEPERATOR_COMMA)}
+           |   Term Scores : ${terms.map(_.score).mkString(Constants.SEPERATOR_COMMA)}
            |   Topic docs  : ${docs.map(_.content).mkString(Constants.SEPERATOR_COMMA)}
         """.stripMargin
       )
