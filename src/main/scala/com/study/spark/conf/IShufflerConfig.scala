@@ -43,7 +43,7 @@ case class IShufflerConfig(args: Array[String]) {
 
   lazy val outputFile: String = Try{args(8)}.toOption.getOrElse("src/main/target/output")
 
-  @transient lazy val log = org.apache.log4j.LogManager.getLogger("iShufflerLogger")
+  @transient lazy val log = org.slf4j.LoggerFactory.getLogger("iShufflerLogger")
 
   @transient
   lazy val conf = new SparkConf().setAppName("iShuffler").setMaster(master).set("spark.executor.memory", executerMemory)

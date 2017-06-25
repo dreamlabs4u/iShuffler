@@ -10,21 +10,13 @@ libraryDependencies ++= Seq(
   "org.apache.spark" % "spark-mllib_2.11" % "2.0.0" % "provided",
   "edu.stanford.nlp" % "stanford-corenlp" % "3.6.0",
   "edu.stanford.nlp" % "stanford-corenlp" % "3.6.0" classifier "models",
+  "org.slf4j" % "slf4j-simple" % "1.7.21",
+  "org.apache.logging.log4j" % "log4j-api" % "2.6.2",
+  "org.apache.logging.log4j" % "log4j-to-slf4j" % "2.6.2",
   "org.scalaz" %% "scalaz-core" % "7.2.13",
   "org.scalatest" %% "scalatest" % "3.0.1" % "provided"
 )
 
-//libraryDependencies ++= Seq(
-//  "org.apache.spark" %% "spark-core" % "2.0.0" % "provided",
-//  "org.apache.spark" %% "spark-sql" % "2.0.0" % "provided",
-//  "org.apache.spark" %% "spark-mllib" % "2.0.0" % "provided",
-//  "edu.stanford.nlp" % "stanford-corenlp" % "3.6.0",
-//  "edu.stanford.nlp" % "stanford-corenlp" % "3.6.0" classifier "models",
-//  "org.scalaz" %% "scalaz-core" % "7.2.13",
-//  "org.scalatest" %% "scalatest" % "3.0.1" % "provided"
-//)
-
-// This is for times where dependencies are called multiple times
 assemblyMergeStrategy in assembly := {
   case PathList("org", "apache", "hadoop", xs @ _*)        => MergeStrategy.first
   case PathList("org", "apache", "spark", xs @ _*)         => MergeStrategy.first
@@ -42,5 +34,6 @@ assemblyMergeStrategy in assembly := {
     oldStrategy(x)
 }
 
-//Important line below.  This strips out all the scala dependencies and shrinks down your jar into skinny jar
+run in Compile <<= Defaults.runTask(fullClasspath in Compile, mainClass in (Compile, run), runner in (Compile, run))
+
 assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false)
