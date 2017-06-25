@@ -38,14 +38,12 @@ trait Allocator extends HasConfig {
     val topTopicTerms = topTermsInTopTopic(svd, config.noTopics, config.numDocs, corpusInfo.termIds)
     val topTopicDocs = topDocsInTopTopic(svd, config.noTopics, config.numDocs, corpusInfo.docIds)
 
-    logResults(topTopicTerms, topTopicDocs)
-
-    config.sc.stop()
+    generateInSights(topTopicTerms, topTopicDocs)
   }
 
   /** Logs the final Insights */
-  def logResults(topConceptTerms: Seq[Seq[Result]], topConceptDocs: Seq[Seq[Result]]) = {
-    val result = for ((terms, docs) <- topConceptTerms.zip(topConceptDocs)) yield {
+  def generateInSights(topTopicTerms: Seq[Seq[Result]], topTopicDocs: Seq[Seq[Result]]) =
+    for ((terms, docs) <- topTopicTerms.zip(topTopicDocs)) yield {
       s"""
          |   Rank        : ${terms.headOption.cata(_.rank.toString, Constants.EMPTY_STR)}
          |   Topic terms : ${terms.map(_.content).mkString(Constants.SEPERATOR_COMMA)}
@@ -54,11 +52,6 @@ trait Allocator extends HasConfig {
          |
         """.stripMargin
     }
-
-    config.log.info(result.mkString("\n"))
-
-    persist(result)
-  }
 
   def persist(result: Seq[String]) = {
     val hdfs = org.apache.hadoop.fs.FileSystem.get(config.sc.hadoopConfiguration)

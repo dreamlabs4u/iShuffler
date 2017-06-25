@@ -22,6 +22,12 @@ case class IShuffler(config: IShufflerConfig) extends HasConfig with PreProcesso
         |
       """.stripMargin  )
 
-    allocate(corpusInfo)
+    val insights: Seq[String] = allocate(corpusInfo)
+
+    config.log.info(insights.mkString("\n"))
+
+    persist(insights)
+
+    config.sc.stop()
   }
 }
